@@ -67,6 +67,8 @@ def _get_build_directory(config):
         logger.debug(f'Custom build directory set via cli arg to: {custom_build_directory}')
         if not os.path.exists(custom_build_directory):
             raise ValueError(f'Pytest argument "--build-directory" does not exist at: {custom_build_directory}')
+        if custom_build_directory.endswith('debug'):
+            pytest.exit("Python debug modules are not available. LyTestTools test skipped.", 0)
     else:
         # only warn when unset, allowing non-LyTT tests to still use pytest
         logger.warning(f'Pytest argument "--build-directory" was not provided, tests using LyTestTools will fail')
@@ -239,7 +241,7 @@ def _launcher(request, workspace, launcher_platform, level=""):
             workspace, launcher_platform)
     else:
         launcher = ly_test_tools.launchers.launcher_helper.create_game_launcher(
-            workspace, launcher_platform, ['+map', level])
+            workspace, launcher_platform, ['+LoadLevel', level])
 
     def teardown():
         launcher.stop()
@@ -272,7 +274,7 @@ def _dedicated_launcher(request, workspace, launcher_platform, level=""):
             workspace, launcher_platform)
     else:
         launcher = ly_test_tools.launchers.launcher_helper.create_server_launcher(
-            workspace, launcher_platform, ['+map', level])
+            workspace, launcher_platform, ['+LoadLevel', level])
 
     def teardown():
         launcher.stop()
